@@ -54,7 +54,7 @@
     .textAreaWrapper {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-between;
+        justify-content: space-around;
         align-items: center;
         height: 100vh;
     }
@@ -77,8 +77,8 @@
     }
     
     canvas {
-        height: 80% !important;
-        width: 80% !important;
+        height: 90% !important;
+        width: 90% !important;
         display: block;
         margin-top: 20px;
         margin-bottom: 20px;
@@ -93,7 +93,7 @@
     .outputDiv {
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: space-around;
         align-items: center;
         transition: all .6s cubic-bezier(0.075, 0.82, 0.165, 1);
     }
@@ -174,6 +174,7 @@
         }
 
         document.getElementById('submit').addEventListener("click", function() {
+
             document.getElementById("chartView").style.display = "block";
             var givenString = document.getElementById("inputString").value.replace(/\s/g, '').replace(/[a-z0-9()'`.#"*]/gi, '');
             var stringLength = givenString.length;
@@ -187,6 +188,8 @@
             });
             console.log(keysSorted);
             document.getElementById("outputString").value = "";
+            frequeny = [];
+            coloR = [];
             keysSorted.forEach((vals) => {
                     document.getElementById("outputString").value = document.getElementById("outputString").value + `${vals} => ${freqTable[vals]} % \n`;
                     frequeny.push(freqTable[vals]);
@@ -199,11 +202,14 @@
         });
     </script>
     <script>
+        var myChart;
+
         function makeChart() {
             var canva = document.getElementsByClassName('myChart');
             console.log(canva);
 
             Array.from(canva).forEach((val, index) => {
+
                 console.log(index, val);
                 var type = '';
                 var scales = {};
@@ -239,13 +245,22 @@
                         // code block
                 }
                 var ctx = val.getContext('2d');
-                var myChart = new Chart(ctx, {
+                // console.log(val.width);
+                // ctx.clearRect(0, 0, val.width, val.height);
+                // console.log(myChart);
+                // myChart.data.datasets[0].data = frequeny;
+                ctx.width = 1000;
+                ctx.height = 1000;
+
+                myChart = new Chart(ctx, {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     type: type,
 
                     data: {
                         labels: keysSorted,
                         datasets: [{
-                            label: '# of Votes',
+
                             data: frequeny,
                             backgroundColor: coloR
                         }]
@@ -255,7 +270,7 @@
                             display: true,
                             text: 'Bangla Alphabate frequency',
                             fontColor: "blue",
-                            fontSize: 25
+                            fontSize: 20
                         },
                         legend: {
                             display: !index ? true : false,
@@ -265,10 +280,21 @@
                             }
                         },
                         scales: scales
-                    }
+                    },
 
                 });
+
             });
+            // myChart.data.datasets[0].data = frequeny;
+            //myChart.data.datasets[0].data = frequeny;
+            myChart.data.datasets[0].data = frequeny;
+            myChart.data.labels = keysSorted;
+
+            myChart.update();
+            myChart.render();
+
+            console.log(keysSorted, frequeny);
+            console.log(myChart.data);
 
         }
     </script>
