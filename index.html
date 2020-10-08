@@ -54,7 +54,7 @@
     .textAreaWrapper {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-around;
+        justify-content: space-between;
         align-items: center;
         height: 100vh;
     }
@@ -114,8 +114,9 @@
     
     @media (max-width: 1000px) {
         .textAreaWrapper {
+            padding: 40px;
             flex-direction: column;
-            height: auto;
+            height: 100% !important;
         }
         textarea {
             width: 100% !important;
@@ -123,6 +124,9 @@
         .inputDiv:hover,
         .outputDiv:hover {
             transform: none;
+        }
+        .textAreaWrapper>* {
+            margin: 10px 0px;
         }
     }
 </style>
