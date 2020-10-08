@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        background-color: rgb(83, 196, 19);
+        background: url(https://softworksbd.com/images/app/mySlate_4.png) no-repeat center center;
+        background-size: cover;
+        background-attachment: fixed;
+    }
+    
+     ::-webkit-scrollbar {
+        width: 0px;
+        /* Remove scrollbar space */
+        background: transparent;
+        /* Optional: just make scrollbar invisible */
+    }
+    /* Optional: show position indicator in red */
+    
+     ::-webkit-scrollbar-thumb {
+        background: #FF0000;
+    }
+    
+    textarea {
+        background-color: orange;
+        border: none;
+        overflow: auto;
+        outline: none;
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+        padding: 10px;
+    }
+    
+    .textAreaWrapper {
+        display: flex;
+        flex-wrap: wrap;
+        flex-basis: 33.33%;
+        justify-content: space-around;
+        align-items: center;
+        height: 100vh;
+    }
+    
+    #submit {
+        padding: 18px;
+        border: none;
+        font-size: 18px;
+        border-radius: 5px;
+        background: orange;
+        outline-style: none;
+        color: white;
+        cursor: pointer;
+        transition: all .6s cubic-bezier(0.075, 0.82, 0.165, 1);
+    }
+    
+    #submit:hover {
+        transform: scale(1.1);
+        background: rgb(113, 221, 25);
+    }
+    
+    canvas {
+        height: 80% !important;
+        width: 80% !important;
+        display: block;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .chart {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .inputDiv,
+    .outputDiv {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: all .6s cubic-bezier(0.075, 0.82, 0.165, 1);
+    }
+    
+    .inputDiv:hover,
+    .outputDiv:hover {
+        transform: scale(1.2);
+    }
+    
+    .inputDiv span,
+    .outputDiv span {
+        background: orange;
+        border-bottom: 1px solid rgb(255, 255, 255);
+        padding: 10px;
+        width: 100%;
+        text-align: center;
+    }
+    
+    @media (max-width: 1000px) {
+        .textAreaWrapper {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<body>
+    <div class="textAreaWrapper">
+        <div class="inputDiv">
+            <span>Input</span>
+            <textarea name="" id="inputString" cols="50" rows="15"></textarea>
+        </div>
+        <button id="submit">Submit</button>
+        <div class="outputDiv">
+            <span>Output</span>
+            <textarea name="" readonly="yes" id="outputString" cols="50" rows="15"></textarea>
+        </div>
+    </div>
+    <div id="chartView" style="display: none;">
+        <div class="chart">
+            <canvas class="myChart" style="background: rgba(160, 157, 157, 0.904);" width="300" height="200"></canvas>
+        </div>
+        <div class="chart">
+            <canvas class="myChart" style="background: rgba(160, 157, 157, 0.87);" width="300" height="200"></canvas>
+        </div>
+    </div>
+    <script>
+        var frequeny = [];
+        var keysSorted = [];
+        var coloR = [];
+
+        var dynamicColors = function() {
+            var r = Math.floor(Math.random() * 255);
+            var g = Math.floor(Math.random() * 255);
+            var b = Math.floor(Math.random() * 255);
+            return "rgb(" + r + "," + g + "," + b + ")";
+        };
+
+        function count(string) {
+            var count = {};
+            // var whiteSpaceRemoved = string.replace(/\s/g, '');
+            // console.log(whiteSpaceRemoved);
+            string.split('').forEach(function(s) {
+                count[s] ? count[s]++ : count[s] = 1;
+            });
+            return count;
+        }
+
+        document.getElementById('submit').addEventListener("click", function() {
+            document.getElementById("chartView").style.display = "block";
+            var givenString = document.getElementById("inputString").value.replace(/\s/g, '').replace(/[a-z0-9()'`.#"*]/gi, '');
+            var stringLength = givenString.length;
+            var freqTable = count(givenString);
+            Object.keys(freqTable).forEach(function(keys) {
+                freqTable[keys] = (freqTable[keys] * 100) / stringLength;
+
+            });
+            keysSorted = Object.keys(freqTable).sort(function(a, b) {
+                return freqTable[b] - freqTable[a];
+            });
+            console.log(keysSorted);
+            document.getElementById("outputString").value = "";
+            keysSorted.forEach((vals) => {
+                    document.getElementById("outputString").value = document.getElementById("outputString").value + `${vals} => ${freqTable[vals]} % \n`;
+                    frequeny.push(freqTable[vals]);
+                    coloR.push(dynamicColors());
+                    console.log(vals, freqTable[vals], stringLength);
+                })
+                // console.log(stringLength, freqTable);
+                //console.log(document.getElementById("inputString").value);
+            makeChart();
+        });
+    </script>
+    <script>
+        function makeChart() {
+            var canva = document.getElementsByClassName('myChart');
+            console.log(canva);
+
+            Array.from(canva).forEach((val, index) => {
+                console.log(index, val);
+                var type = '';
+                var scales = {};
+                switch (index) {
+                    case 0:
+                        // code block
+                        type = "pie";
+                        scales = {}
+                        break;
+                    case 1:
+                        // code block
+                        type = "bar";
+                        scales = {
+                            yAxes: [{
+                                ticks: {
+                                    fontColor: "white",
+                                    fontSize: 18,
+                                    stepSize: 1,
+                                    beginAtZero: true
+                                }
+                            }],
+                            xAxes: [{
+                                ticks: {
+                                    fontColor: "white",
+                                    fontSize: 14,
+                                    stepSize: 1,
+                                    beginAtZero: true
+                                }
+                            }]
+                        };
+                        break;
+                    default:
+                        // code block
+                }
+                var ctx = val.getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: type,
+
+                    data: {
+                        labels: keysSorted,
+                        datasets: [{
+                            label: '# of Votes',
+                            data: frequeny,
+                            backgroundColor: coloR
+                        }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Bangla Alphabate frequency',
+                            fontColor: "blue",
+                            fontSize: 25
+                        },
+                        legend: {
+                            display: !index ? true : false,
+                            labels: {
+                                fontColor: "blue",
+                                fontSize: 20
+                            }
+                        },
+                        scales: scales
+                    }
+
+                });
+            });
+
+        }
+    </script>
+</body>
+
+</html>
