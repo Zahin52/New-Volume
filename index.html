@@ -304,7 +304,6 @@
 
     <script>
         function update() {
-            console.log("in");
             dataCollect();
             var data = {
                 labels: keysSorted,
@@ -316,8 +315,17 @@
                     data: frequeny,
                 }]
             };
-            myChart.data = data;
-            myChart.update();
+            Chart.helpers.each(Chart.instances, function(instance) {
+                console.log(instance.chart)
+                var myChart = instance.chart;
+                myChart.data = data;
+                myChart.update({
+                    duration: 1200,
+                    easing: 'linear'
+                });
+            })
+            console.log("in");
+
         }
     </script>
 </body>
