@@ -59,7 +59,8 @@
         height: 100vh;
     }
     
-    #submit {
+    #submit,
+    #update {
         padding: 18px;
         border: none;
         font-size: 18px;
@@ -71,7 +72,8 @@
         transition: all .6s cubic-bezier(0.075, 0.82, 0.165, 1);
     }
     
-    #submit:hover {
+    #submit:hover,
+    #update:hover {
         transform: scale(1.1);
         background: rgb(113, 221, 25);
     }
@@ -138,6 +140,7 @@
             <textarea name="" id="inputString" cols="50" rows="15"></textarea>
         </div>
         <button id="submit">Submit</button>
+        <button style="display: none;" onclick="update()" id="update">Update</button>
         <div class="outputDiv">
             <span>Output</span>
             <textarea name="" readonly="yes" id="outputString" cols="50" rows="15"></textarea>
@@ -173,9 +176,7 @@
             return count;
         }
 
-        document.getElementById('submit').addEventListener("click", function() {
-
-            document.getElementById("chartView").style.display = "block";
+        function dataCollect() {
             var givenString = document.getElementById("inputString").value.replace(/\s/g, '').replace(/[a-z0-9()'`.#"*]/gi, '');
             var stringLength = givenString.length;
             var freqTable = count(givenString);
@@ -191,18 +192,28 @@
             frequeny = [];
             coloR = [];
             keysSorted.forEach((vals) => {
-                    document.getElementById("outputString").value = document.getElementById("outputString").value + `${vals} => ${freqTable[vals]} % \n`;
-                    frequeny.push(freqTable[vals]);
-                    coloR.push(dynamicColors());
-                    console.log(vals, freqTable[vals], stringLength);
-                })
-                // console.log(stringLength, freqTable);
-                //console.log(document.getElementById("inputString").value);
+                document.getElementById("outputString").value = document.getElementById("outputString").value + `${vals} => ${freqTable[vals]} % \n`;
+                frequeny.push(freqTable[vals]);
+                coloR.push(dynamicColors());
+                console.log(vals, freqTable[vals], stringLength);
+            });
+        }
+
+        document.getElementById('submit').addEventListener("click", function() {
+
+            document.getElementById("update").style.display = "block";
+            document.getElementById("submit").style.display = "none";
+            document.getElementById("chartView").style.display = "block";
+
+            // console.log(stringLength, freqTable);
+            //console.log(document.getElementById("inputString").value);
+            dataCollect();
             makeChart();
         });
     </script>
     <script>
         var myChart;
+
 
         function makeChart() {
             var canva = document.getElementsByClassName('myChart');
@@ -245,26 +256,25 @@
                         // code block
                 }
                 var ctx = val.getContext('2d');
-                // console.log(val.width);
-                // ctx.clearRect(0, 0, val.width, val.height);
-                // console.log(myChart);
-                // myChart.data.datasets[0].data = frequeny;
                 ctx.width = 1000;
                 ctx.height = 1000;
+                var data = {
+                    labels: keysSorted,
+                    datasets: [{
+                        label: "Compras",
+                        backgroundColor: coloR,
+                        borderColor: 'rgba(255,99,132,1)',
+                        borderWidth: 1,
+                        data: frequeny,
+                    }]
+                };
 
                 myChart = new Chart(ctx, {
                     responsive: true,
                     maintainAspectRatio: false,
                     type: type,
 
-                    data: {
-                        labels: keysSorted,
-                        datasets: [{
-
-                            data: frequeny,
-                            backgroundColor: coloR
-                        }]
-                    },
+                    data: data,
                     options: {
                         title: {
                             display: true,
@@ -283,19 +293,31 @@
                     },
 
                 });
+                console.log(keysSorted, frequeny);
+                console.log(myChart);
 
             });
-            // myChart.data.datasets[0].data = frequeny;
-            //myChart.data.datasets[0].data = frequeny;
-            myChart.data.datasets[0].data = frequeny;
-            myChart.data.labels = keysSorted;
 
+
+        }
+    </script>
+
+    <script>
+        function update() {
+            console.log("in");
+            dataCollect();
+            var data = {
+                labels: keysSorted,
+                datasets: [{
+                    label: "Compras",
+                    backgroundColor: coloR,
+                    borderColor: 'rgba(255,99,132,1)',
+                    borderWidth: 1,
+                    data: frequeny,
+                }]
+            };
+            myChart.data = data;
             myChart.update();
-            myChart.render();
-
-            console.log(keysSorted, frequeny);
-            console.log(myChart.data);
-
         }
     </script>
 </body>
